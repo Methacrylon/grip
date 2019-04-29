@@ -2,10 +2,7 @@ Grip -- GitHub Readme Instant Preview
 =====================================
 
 [![Current version on PyPI](http://img.shields.io/pypi/v/grip.svg)][pypi]
-[![Downloads/month on PyPI](http://img.shields.io/pypi/dm/grip.svg)][pypi]
-<a href="https://gratipay.com/grip/" title="Thank you!" target="_blank">
-  <img src="https://img.shields.io/gratipay/grip.svg" alt="Thank you!">
-</a>
+[![Say Thanks!](https://img.shields.io/badge/Say%20Thanks-!-1EAEDB.svg)](https://saythanks.io/to/joeyespo)
 
 Render local readme files before sending off to GitHub.
 
@@ -30,8 +27,14 @@ Installation
 
 To install grip, simply:
 
-```bash
+```console
 $ pip install grip
+```
+
+On OS X, you can also install with Homebrew:
+
+```console
+$ brew install grip
 ```
 
 
@@ -40,7 +43,7 @@ Usage
 
 To render the readme of a repository:
 
-```bash
+```console
 $ cd myrepo
 $ grip
  * Running on http://localhost:6419/
@@ -51,14 +54,14 @@ Or run with `-b` and Grip will open a new browser tab for you.
 
 You can also specify a port:
 
-```bash
+```console
 $ grip 80
  * Running on http://localhost:80/
 ```
 
 Or an explicit file:
 
-```bash
+```console
 $ grip AUTHORS.md
  * Running on http://localhost:6419/
 ```
@@ -68,60 +71,60 @@ since grip supports relative URLs.
 
 You can combine the previous examples. Or specify a hostname instead of a port. Or provide both.
 
-```bash
+```console
 $ grip AUTHORS.md 80
  * Running on http://localhost:80/
 ```
 
-```bash
+```console
 $ grip CHANGES.md 0.0.0.0
  * Running on http://0.0.0.0:6419/
 ```
 
-```bash
+```console
 $ grip . 0.0.0.0:80
  * Running on http://0.0.0.0:80/
 ```
 
 You can even bypass the server and **export** to a single HTML file, with all the styles and assets inlined:
 
-```bash
+```console
 $ grip --export
 Exporting to README.html
 ```
 
 Control the output name with the second argument:
 
-```bash
-$ grip README.md --export readme.html
-Exporting to readme.html
+```console
+$ grip README.md --export index.html
+Exporting to index.html
 ```
 
 If you're exporting a bunch of files, you can prevent styles from being inlining to save space with `--no-inline`:
 
-```bash
+```console
 $ grip README.md --export --no-inline introduction.html
 Exporting to introduction.html
 ```
 
 Reading and writing from **stdin** and **stdout** is also supported, allowing you to use Grip with other programs:
 
-```bash
+```console
 $ cat README.md | grip -
  * Running on http://localhost:6419/
 ```
 
-```bash
+```console
 $ grip AUTHORS.md --export - | bcat
 ```
 
-```bash
+```console
 $ cat README.md | grip --export - | less
 ```
 
 This allows you to quickly test how things look by entering Markdown directly in your terminal:
 
-```bash
+```console
 $ grip -
 Hello **world**!
 ^D
@@ -132,14 +135,14 @@ Hello **world**!
 
 Rendering as user-content like **comments** and **issues** is also supported, with an optional repository context for linking to issues:
 
-```bash
+```console
 $ grip --user-content --context=joeyespo/grip
  * Running on http://localhost:6419/
 ```
 
 For more details and additional options, see the help:
 
-```bash
+```console
 $ grip -h
 ```
 
@@ -154,14 +157,14 @@ However, because of this you may hit the API's hourly rate limit. If this
 happens, grip offers a way to access the API using your credentials
 to unlock a much higher rate limit.
 
-```bash
+```console
 $ grip --user <your-username> --pass <your-password>
 ```
 
 Or use a [personal access token][] with an empty scope (note that a token is
 *required* if your GitHub account is set up with two-factor authentication):
 
-```bash
+```console
 $ grip --pass <token>
 ```
 
@@ -170,7 +173,7 @@ For security purposes, it's highly recommended that you **use an access token
 over a password**. (You could also keep your password safe by configuring
 Grip to [grab your password from a password manager][keychain-access].)
 
-There's also a [work-in-progress branch][fix-render-offline] to provide
+There's also a [work-in-progress branch][offline-renderer] to provide
 **offline rendering**. Once this resembles GitHub more precisely, it'll
 be exposed in the CLI, and will ultimately be used as a seamless fallback
 engine for when the API can't be accessed.
@@ -189,7 +192,7 @@ Want to share your own? [Say hello @joeyespo][twitter] or [submit a pull request
 
 #### Create a local mirror of a Github Wiki
 
-```bash
+```console
 $ git clone https://github.com/YOUR_USERNAME/YOUR_REPOSITORY.wiki.git
 $ cd YOUR_REPOSITORY.wiki
 $ grip
@@ -202,27 +205,27 @@ $ grip
 
 1. Enter the directory:
 
-   ```bash
+   ```console
    $ cd YOUR_DIR
-   $ export GRIPURL=$(PWD)
+   $ export GRIPURL=$(pwd)
    ```
 
 2. Include all assets by setting the `CACHE_DIRECTORY` [config variable](#configuration):
 
-   ```bash
+   ```console
    $ echo "CACHE_DIRECTORY = '$(pwd)/assets'" >> ~/.grip/settings.py
    ```
 
 3. Export all your Markdown files with Grip and replace absolute asset paths with relative paths:
 
-   ```bash
-   $ for f in *.md; do grip --export $f --inline=False; done
+   ```console
+   $ for f in *.md; do grip --export $f --no-inline; done
    $ for f in *.html; do sed -i '' "s?$GRIPURL/??g" $f; done
    ```
 
 You can optionally compress the set of HTML files to `docs.tgz` with:
 
-   ```bash
+   ```console
    $ tar -czvf docs.tgz `ls | grep [\.]html$` assets
    ```
 
@@ -247,6 +250,15 @@ To customize Grip, create `~/.grip/settings.py`, then add one or more of the fol
 - `STYLE_URLS`: Additional URLs that will be added to the rendered page, `[]` by default
 - `USERNAME`: The username to use when not provided as a CLI argument, `None` by default
 - `PASSWORD`: The password or [personal access token][] to use when not provided as a CLI argument (*Please don't save your passwords here.* Instead, use an access token or drop in this code [grab your password from a password manager][keychain-access]), `None` by default
+
+Note that this is a Python file. If you see `'X' is not defined` errors, you
+may have overlooked some quotes. For example:
+
+```py
+USERNAME = 'your-username'
+PASSWORD = 'your-personal-access-token'
+```
+
 
 #### Environment variables
 
@@ -322,7 +334,7 @@ serve(path=None, host=None, port=None, user_content=False, context=None, usernam
 - `title`: The page title, derived from `path` by default
 - `autorefresh`: Automatically update the rendered content when the Readme file changes, `True` by default
 - `browser`: Open a tab in the browser after the server starts., `False` by default
-- `grip_class`: Use a custom [Grip class](#grip-class)
+- `grip_class`: Use a custom [Grip class](#class-gripflask)
 
 
 #### export
@@ -330,7 +342,7 @@ serve(path=None, host=None, port=None, user_content=False, context=None, usernam
 Writes the specified Readme file to an HTML file with styles and assets inlined.
 
 ```python
-export(path=None, user_content=False, context=None, username=None, password=None, render_offline=False, render_wide=False, render_inline=True, out_filename=None, api_url=None, title=None, grip_class=None)
+export(path=None, user_content=False, context=None, username=None, password=None, render_offline=False, render_wide=False, render_inline=True, out_filename=None, api_url=None, title=None, quiet=None, grip_class=None)
 ```
 
 - `path`: The filename to render, or the directory containing your Readme file, defaulting to the current working directory
@@ -345,7 +357,8 @@ export(path=None, user_content=False, context=None, username=None, password=None
 - `out_filename`: The filename to write to, `<in_filename>.html` by default
 - `api_url`: A different base URL for the github API, for example that of a Github Enterprise instance. The default is the public API https://api.github.com.
 - `title`: The page title, derived from `path` by default
-- `grip_class`: Use a custom [Grip class](#grip-class)
+- `quiet`: Do not print to the terminal
+- `grip_class`: Use a custom [Grip class](#class-gripflask)
 
 
 #### create_app
@@ -370,7 +383,7 @@ create_app(path=None, user_content=False, context=None, username=None, password=
 - `api_url`: A different base URL for the github API, for example that of a Github Enterprise instance. The default is the public API https://api.github.com.
 - `title`: The page title, derived from `path` by default
 - `text`: A string or stream of Markdown text to render instead of being loaded from `path` (Note: `path` can be used to set the page title)
-- `grip_class`: Use a custom [Grip class](#grip-class)
+- `grip_class`: Use a custom [Grip class](#class-gripflask)
 
 
 #### render_app
@@ -411,7 +424,7 @@ Renders the markdown from the specified path or text, without caching,
 and returns an HTML page that resembles the GitHub Readme view.
 
 ```python
-render_page(path=None, user_content=False, context=None, username=None, password=None, render_offline=False, render_wide=False, render_inline=False, api_url=None, title=None, text=None, grip_class=None)
+render_page(path=None, user_content=False, context=None, username=None, password=None, render_offline=False, render_wide=False, render_inline=False, api_url=None, title=None, text=None, quiet=None, grip_class=None)
 ```
 
 - `path`: The path to use for the page title, rendering `'README.md'` if None
@@ -426,7 +439,8 @@ render_page(path=None, user_content=False, context=None, username=None, password
 - `api_url`: A different base URL for the github API, for example that of a Github Enterprise instance. The default is the public API https://api.github.com.
 - `title`: The page title, derived from `path` by default
 - `text`: A string or stream of Markdown text to render instead of being loaded from `path` (Note: `path` can be used to set the page title)
-- `grip_class`: Use a custom [Grip class](#grip-class)
+- `quiet`: Do not print to the terminal
+- `grip_class`: Use a custom [Grip class](#class-gripflask)
 
 
 #### clear_cache
@@ -566,7 +580,7 @@ ReadmeReader()
 ```
 
 
-#### class class DirectoryReader(ReadmeReader)
+#### class DirectoryReader(ReadmeReader)
 
 Reads Readme files from URL subpaths.
 
@@ -697,19 +711,19 @@ Testing
 
 Install the package and test requirements:
 
-```bash
+```console
 $ pip install -e .[tests]
 ```
 
 Run tests with [pytest][]:
 
-```bash
+```console
 $ py.test
 ```
 
 Or to re-run tests as you make changes, use [pytest-watch][]:
 
-```bash
+```console
 $ ptw
 ```
 
@@ -719,7 +733,7 @@ $ ptw
 If you're experiencing a problem with Grip, it's likely that an assumption made
 about the GitHub API has been broken. To verify this, run:
 
-```bash
+```console
 $ py.test -m assumption
 ```
 
@@ -727,13 +741,13 @@ Since the external assumptions rely on an internet connection, you may want to s
 them when developing locally. Tighten the cycle even further by stopping on the
 first failure with `-x`:
 
-```bash
+```console
 $ py.test -xm "not assumption"
 ```
 
 Or with [pytest-watch][]:
 
-```bash
+```console
 $ ptw -- -xm "not assumption"
 ```
 
@@ -743,23 +757,20 @@ Contributing
 
 1. Check the open issues or open a new issue to start a discussion around
    your feature idea or the bug you found
-2. Fork the repository, make your changes, and add yourself to [Authors.md][]
-3. Send a pull request
+2. Fork the repository and make your changes
+3. Open a new pull request
 
 If your PR has been waiting a while, feel free to [ping me on Twitter][twitter].
 
-Use this software often? Please consider [supporting Grip][support].
-
-<a href="https://gratipay.com/grip/" title="Thank you!" target="_blank">
-  <img src="https://img.shields.io/gratipay/grip.svg" align="center" alt="Thank you!">
-</a>
+Use this software often? <a href="https://saythanks.io/to/joeyespo" target="_blank"><img src="https://img.shields.io/badge/Say%20Thanks-!-1EAEDB.svg" align="center" alt="Say Thanks!"></a>
+:smiley:
 
 
 [pypi]: http://pypi.python.org/pypi/grip/
 [markdown]: http://developer.github.com/v3/markdown
 [rdd]: http://tom.preston-werner.com/2010/08/23/readme-driven-development.html
 [authors.md]: AUTHORS.md
-[fix-render-offline]: http://github.com/joeyespo/grip/tree/fix-render-offline
+[offline-renderer]: http://github.com/joeyespo/grip/tree/offline-renderer
 [personal access token]: https://github.com/settings/tokens/new?scopes=
 [keychain-access]: https://gist.github.com/klmr/3840aa3c12f947e4064c
 [task-lists]: https://github.com/blog/1825-task-lists-in-all-markdown-documents
@@ -770,4 +781,3 @@ Use this software often? Please consider [supporting Grip][support].
 [pytest]: http://pytest.org/
 [pytest-watch]: https://github.com/joeyespo/pytest-watch
 [twitter]: http://twitter.com/joeyespo
-[support]: https://gratipay.com/grip/

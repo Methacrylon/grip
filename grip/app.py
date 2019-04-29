@@ -6,6 +6,7 @@ import mimetypes
 import os
 import posixpath
 import re
+import socket
 import sys
 import threading
 import time
@@ -83,7 +84,7 @@ class Grip(Flask):
             username = self.config['USERNAME']
             password = self.config['PASSWORD']
             if username or password:
-                auth = (username, password)
+                auth = (username or '', password or '')
 
         # Thread-safe event to signal to the polling threads to exit
         self._run_mutex = threading.Lock()
@@ -99,6 +100,10 @@ class Grip(Flask):
         self.render_inline = render_inline
         self.title = title
         self.quiet = quiet
+        if self.quiet:
+            import logging
+            log = logging.getLogger('werkzeug')
+            log.setLevel(logging.ERROR)
 
         # Overridable attributes
         if self.renderer is None:
@@ -128,7 +133,8 @@ class Grip(Flask):
         rate_limit_route = posixpath.join(grip_url, 'rate-limit-preview')
 
         # Initialize views
-        self.before_first_request(self._retrieve_styles)
+        self._styles_retrieved = False
+        self.before_request(self._retrieve_styles)
         self.add_url_rule(asset_route, 'asset', self._render_asset)
         self.add_url_rule(asset_subpath, 'asset', self._render_asset)
         self.add_url_rule('/', 'render', self._render_page)
@@ -152,12 +158,6 @@ class Grip(Flask):
         if normalized != subpath:
             return redirect(normalized)
 
-        # Get the contextual or overridden title
-        title = self.title
-        if title is None:
-            filename = self.reader.filename_for(subpath)
-            title = ' - '.join([filename or '', 'Grip'])
-
         # Read the Readme text or asset
         try:
             text = self.reader.read(subpath)
@@ -176,6 +176,15 @@ class Grip(Flask):
             if ex.response.status_code == 403:
                 abort(403)
             raise
+        except requests.exceptions.SSLError as ex:
+            if 'TLSV1_ALERT_PROTOCOL_VERSION' in str(ex):
+                print('Error: GitHub has turned off TLS1.0 support. '
+                      'Please upgrade your version of Python or Homebrew '
+                      'to use a later version of openssl. '
+                      'For more information, see '
+                      'https://github.com/joeyespo/grip/issues/262')
+                abort(500)
+            raise
 
         # Inline favicon asset
         favicon = None
@@ -188,7 +197,8 @@ class Grip(Flask):
                            else None)
 
         return render_template(
-            'index.html', title=title, content=content, favicon=favicon,
+            'index.html', filename=self.reader.filename_for(subpath),
+            title=self.title, content=content, favicon=favicon,
             user_content=self.renderer.user_content,
             wide_style=self.render_wide, style_urls=self.assets.style_urls,
             styles=self.assets.styles, autorefresh_url=autorefresh_url)
@@ -310,6 +320,10 @@ class Grip(Flask):
         Retrieves the style URLs from the source and caches them. This
         is called before the first request is dispatched.
         """
+        if self._styles_retrieved:
+            return
+        self._styles_retrieved = True
+
         try:
             self.assets.retrieve_styles(url_for('asset'))
         except Exception as ex:
@@ -340,7 +354,8 @@ class Grip(Flask):
         if cache_directory:
             cache_directory = cache_directory.format(version=__version__)
             cache_path = os.path.join(self.instance_path, cache_directory)
-        return GitHubAssetManager(cache_path, self.config['STYLE_URLS'])
+        return GitHubAssetManager(
+            cache_path, self.config['STYLE_URLS'], self.quiet)
 
     def add_content_types(self):
         """
@@ -399,6 +414,13 @@ class Grip(Flask):
             else:
                 auth_method = type(self.auth).__name__
             print(' * Using', auth_method, file=sys.stderr)
+
+        # Get random port manually when needed ahead of time
+        if port == 0 and open_browser:
+            sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            sock.bind(('localhost', 0))
+            port = sock.getsockname()[1]
+            sock.close()
 
         # Open browser
         browser_thread = (

@@ -15,7 +15,7 @@ def create_app(path=None, user_content=False, context=None, username=None,
                render_inline=False, api_url=None, title=None, text=None,
                autorefresh=None, quiet=None, grip_class=None):
     """
-    Creates an Grip application with the specified overrides.
+    Creates a Grip application with the specified overrides.
     """
     # Customize the app
     if grip_class is None:
@@ -66,19 +66,20 @@ def clear_cache(grip_class=None):
     """
     if grip_class is None:
         grip_class = Grip
-    grip_class().clear_cache()
+    grip_class(StdinReader()).clear_cache()
 
 
 def render_page(path=None, user_content=False, context=None,
                 username=None, password=None,
                 render_offline=False, render_wide=False, render_inline=False,
-                api_url=None, title=None, text=None, grip_class=None):
+                api_url=None, title=None, text=None, quiet=None,
+                grip_class=None):
     """
     Renders the specified markup text to an HTML page and returns it.
     """
     return create_app(path, user_content, context, username, password,
                       render_offline, render_wide, render_inline, api_url,
-                      title, text, False, None, grip_class).render()
+                      title, text, False, quiet, grip_class).render()
 
 
 def render_content(text, user_content=False, context=None, username=None,
@@ -93,10 +94,10 @@ def render_content(text, user_content=False, context=None, username=None,
     return renderer.render(text, auth)
 
 
-def export(path=None, user_content=False, context=None, username=None,
-           password=None, render_offline=False, render_wide=False,
-           render_inline=True, out_filename=None, api_url=None, title=None,
-           grip_class=None):
+def export(path=None, user_content=False, context=None,
+           username=None, password=None, render_offline=False,
+           render_wide=False, render_inline=True, out_filename=None,
+           api_url=None, title=None, quiet=False, grip_class=None):
     """
     Exports the rendered HTML to a file.
     """
@@ -109,12 +110,12 @@ def export(path=None, user_content=False, context=None, username=None,
                 os.path.relpath(DirectoryReader(path).root_filename))
             out_filename = '{0}.html'.format(filetitle)
 
-    if not export_to_stdout:
+    if not export_to_stdout and not quiet:
         print('Exporting to', out_filename, file=sys.stderr)
 
     page = render_page(path, user_content, context, username, password,
                        render_offline, render_wide, render_inline, api_url,
-                       title, None, grip_class)
+                       title, None, quiet, grip_class)
 
     if export_to_stdout:
         try:

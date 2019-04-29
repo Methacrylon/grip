@@ -45,6 +45,8 @@ from __future__ import print_function
 
 import sys
 import mimetypes
+import socket
+import errno
 
 from docopt import docopt
 from getpass import getpass
@@ -64,9 +66,9 @@ def main(argv=None, force_utf8=True, patch_svg=True):
     The entry point of the application.
     """
     if force_utf8 and sys.version_info[0] == 2:
-        reload(sys)
+        reload(sys)  # noqa
         sys.setdefaultencoding('utf-8')
-    if patch_svg and sys.version_info[0] == 2 and sys.version_info[2] <= 6:
+    if patch_svg and sys.version_info[0] == 2 and sys.version_info[1] <= 6:
         mimetypes.add_type('image/svg+xml', '.svg')
 
     if argv is None:
@@ -117,7 +119,7 @@ def main(argv=None, force_utf8=True, patch_svg=True):
     host, port = split_address(address)
 
     # Validate address
-    if address and not host and not port:
+    if address and not host and port is None:
         print('Error: Invalid address', repr(address))
 
     # Run server
@@ -130,4 +132,10 @@ def main(argv=None, force_utf8=True, patch_svg=True):
         return 0
     except ReadmeNotFoundError as ex:
         print('Error:', ex)
+        return 1
+    except socket.error as ex:
+        print('Error:', ex)
+        if ex.errno == errno.EADDRINUSE:
+            print('This port is in use. Is a grip server already running? '
+                  'Stop that instance or specify another port here.')
         return 1

@@ -8,7 +8,13 @@ Render local readme files before sending off to GitHub.
 :license: MIT, see LICENSE for more details.
 """
 
-__version__ = '4.2.0'
+__version__ = '4.5.2'
+
+import sys
+
+# Patch for Flask 11.0+ on Python 3 (pypy3)
+if not hasattr(sys, 'exc_clear'):
+    sys.exc_clear = lambda: None
 
 from .api import (
     clear_cache, create_app, export, render_content, render_page, serve)
@@ -18,7 +24,7 @@ from .command import main
 from .constants import (
     DEFAULT_API_URL, DEFAULT_FILENAMES, DEFAULT_FILENAME, DEFAULT_GRIPHOME,
     DEFAULT_GRIPURL, STYLE_ASSET_URLS_INLINE_FORMAT, STYLE_ASSET_URLS_RE,
-    STYLE_ASSET_URLS_SUB_FORMAT, STYLE_URLS_RE, STYLE_URLS_SOURCE,
+    STYLE_ASSET_URLS_SUB_FORMAT, STYLE_URLS_RES, STYLE_URLS_SOURCE,
     SUPPORTED_EXTENSIONS, SUPPORTED_TITLES)
 from .exceptions import AlreadyRunningError, ReadmeNotFoundError
 from .readers import ReadmeReader, DirectoryReader, StdinReader, TextReader
@@ -30,7 +36,7 @@ __all__ = [
 
     'DEFAULT_API_URL', 'DEFAULT_FILENAMES', 'DEFAULT_FILENAME',
     'DEFAULT_GRIPHOME', 'DEFAULT_GRIPURL', 'STYLE_ASSET_URLS_INLINE_FORMAT',
-    'STYLE_ASSET_URLS_RE', 'STYLE_ASSET_URLS_SUB_FORMAT', 'STYLE_URLS_RE',
+    'STYLE_ASSET_URLS_RE', 'STYLE_ASSET_URLS_SUB_FORMAT', 'STYLE_URLS_RES',
     'STYLE_URLS_SOURCE', 'SUPPORTED_EXTENSIONS', 'SUPPORTED_TITLES',
 
     'AlreadyRunningError', 'DirectoryReader', 'GitHubAssetManager',

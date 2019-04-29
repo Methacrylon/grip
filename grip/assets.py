@@ -16,7 +16,7 @@ import requests
 from flask import safe_join
 
 from .constants import (
-    STYLE_URLS_SOURCE, STYLE_URLS_RE, STYLE_ASSET_URLS_RE,
+    STYLE_URLS_SOURCE, STYLE_URLS_RES, STYLE_ASSET_URLS_RE,
     STYLE_ASSET_URLS_SUB_FORMAT)
 from .vendor.six import add_metaclass
 
@@ -28,13 +28,14 @@ class ReadmeAssetManager(object):
 
     Set cache_path to None to disable caching.
     """
-    def __init__(self, cache_path, style_urls=None):
+    def __init__(self, cache_path, style_urls=None, quiet=None):
         super(ReadmeAssetManager, self).__init__()
         self.cache_path = cache_path
         self.style_urls = list(style_urls) if style_urls else []
         self.styles = []
+        self.quiet = quiet
 
-    def _stip_url_params(self, url):
+    def _strip_url_params(self, url):
         return url.rsplit('?', 1)[0].rsplit('#', 1)[0]
 
     def clear(self):
@@ -50,7 +51,7 @@ class ReadmeAssetManager(object):
         """
         # FUTURE: Use url exactly instead of flattening it here
         url = posixpath.basename(url)
-        return self._stip_url_params(url)
+        return self._strip_url_params(url)
 
     @abstractmethod
     def retrieve_styles(self, asset_url_path):
@@ -67,8 +68,8 @@ class GitHubAssetManager(ReadmeAssetManager):
 
     Set cache_path to None to disable caching.
     """
-    def __init__(self, cache_path, style_urls=None):
-        super(GitHubAssetManager, self).__init__(cache_path, style_urls)
+    def __init__(self, cache_path, style_urls=None, quiet=None):
+        super(GitHubAssetManager, self).__init__(cache_path, style_urls, quiet)
 
     def _get_style_urls(self, asset_url_path):
         """
@@ -87,7 +88,12 @@ class GitHubAssetManager(ReadmeAssetManager):
         if not 200 <= r.status_code < 300:
             print('Warning: retrieving styles gave status code',
                   r.status_code, file=sys.stderr)
-        urls = re.findall(STYLE_URLS_RE, r.text)
+        urls = []
+        for style_urls_re in STYLE_URLS_RES:
+            urls.extend(re.findall(style_urls_re, r.text))
+        if not urls:
+            print('Warning: no styles found - see https://github.com/joeyespo/'
+                  'grip/issues/265', file=sys.stderr)
 
         # Cache the styles and their assets
         if self.cache_path:
@@ -122,7 +128,8 @@ class GitHubAssetManager(ReadmeAssetManager):
 
         asset_urls = []
         for style_url in style_urls:
-            print(' * Downloading style', style_url, file=sys.stderr)
+            if not self.quiet:
+                print(' * Downloading style', style_url, file=sys.stderr)
             r = requests.get(style_url)
             if not 200 <= r.status_code < 300:
                 print(' -> Warning: Style request responded with',
@@ -143,7 +150,8 @@ class GitHubAssetManager(ReadmeAssetManager):
                 files[filename] = contents.encode('utf-8')
 
         for asset_url in asset_urls:
-            print(' * Downloading asset', asset_url, file=sys.stderr)
+            if not self.quiet:
+                print(' * Downloading asset', asset_url, file=sys.stderr)
             # Retrieve binary file and show message
             r = requests.get(asset_url, stream=True)
             if not 200 <= r.status_code < 300:
@@ -169,7 +177,9 @@ class GitHubAssetManager(ReadmeAssetManager):
         for filename in cache:
             with open(filename, 'wb') as f:
                 f.write(cache[filename])
-        print(' * Cached all downloads in', self.cache_path, file=sys.stderr)
+        if not self.quiet:
+            print(
+                ' * Cached all downloads in', self.cache_path, file=sys.stderr)
         return True
 
     def retrieve_styles(self, asset_url_path):

@@ -2,6 +2,87 @@ Grip Changelog
 --------------
 
 
+#### Development
+
+- **Breaking change**: Drop Python 2.6 support
+- **Breaking change**: Drop Python 3.3 support
+
+- Tests: Add Python 3.6 support
+
+
+###### Version 4.5.2 (2018-03-18)
+
+- Enhancement: Show more helpful error message on TLSV1_ALERT_PROTOCOL_VERSION to help people through ([#262](https://github.com/joeyespo/grip/pull/262))
+- Docs: Use smaller header for patch version titles in CHANGES.md
+
+
+###### Version 4.5.1 (2018-03-18)
+
+- Bugfix: Don't print "Downloading" from `--export` when using `--quiet`
+- Cleanup: Move `quiet` kwarg of `export()` to the end like the other API methods
+- Readme: Document `quiet` kwarg of `export()`
+- Readme: Document `quiet` kwarg of `render_page()`
+
+
+#### Version 4.5.0 (2018-03-18)
+
+- Enhancement: Show warning if no styles are collected ([#265](https://github.com/joeyespo/grip/pull/265))
+- Bugfix: Don't print "Exporting" from `--export` when using `--quiet` ([#247](https://github.com/joeyespo/grip/pull/247) - thanks, [@kagof][]!)
+- Bugfix: Fix style parsing ([#265](https://github.com/joeyespo/grip/pull/265))
+- Bugfix: Loosen up the style URLs matching ([#265](https://github.com/joeyespo/grip/pull/265))
+- Internals: Fix `_strip_url_params` method name typo ([#254](https://github.com/joeyespo/grip/pull/254) - thanks, [@jwilk][]!)
+- Readme: Fix syntax highlighting in README ([#264](https://github.com/joeyespo/grip/pull/264) - thanks, [@jwilk][]!)
+- Readme: Remove Gratipay :frowning_face: ([Article](https://gratipay.news/the-end-cbfba8f50981))
+- Readme: Tweak Contributing copy
+- Tests: Wrap map() with list() for multiple iteration for Python 3 support
+- Tests: Call `Popen.communicate()` only once
+- Tests: Regenerate render output
+- Cleanup: PEP8
+- Thanks: [@jwilk][] for getting the GitHub repo to finally show the right Language stats :smiley: ([#263](https://github.com/joeyespo/grip/pull/263))
+
+
+#### Version 4.4.0 (2017-09-24)
+
+- Patch: Work around a GitHub API header bug ([#245](https://github.com/joeyespo/grip/pull/245))
+- Bugfix: Fail cleanly when server address is already in use ([#216](https://github.com/joeyespo/grip/pull/216) - thanks, [@davisjam][]!)
+- Bugfix: Fix `--browser` when running on a random port (port 0) ([#219](https://github.com/joeyespo/grip/pull/219))
+- Bugfix: Add defaults to USERNAME and PASSWORD in case just one is provided ([#222](https://github.com/joeyespo/grip/pull/222))
+- Internals: Fix deprecation warning in Python 3.6 by using triple-quoted raw strings in regexp constants ([#223](https://github.com/joeyespo/grip/pull/223) - thanks, [@jwilk][]!)
+- Internals: Decouple patchers from renderers
+- Docs: Fix typo in API docs ([#224](https://github.com/joeyespo/grip/pull/224) - thanks, [@jwilk][]!)
+- Readme: Add Homebrew installation instructions ([#201](https://github.com/joeyespo/grip/issues/201) - thanks, [@zmwangx][]!)
+- Readme: Use `pwd` instead of `PWD` in bash shell example ([#207](https://github.com/joeyespo/grip/pull/207) - thanks, [@xxd3vin][]!)
+- Readme: Use 'index.html' in --export example for searchability
+- Readme: Fix link to `offline-renderer` branch ([#230](https://github.com/joeyespo/grip/pull/230) - thanks, [@4ndrej][]!)
+- Readme: Add Configuration troubleshooting tip and example
+- Readme: Add [Say Thanks](http://saythanks.io/) badge :smiley:
+- Thanks: [@JasonThomasData][] for investigating and working with GitHub Support to fix a heading bug ([#235](https://github.com/joeyespo/grip/pull/235))
+
+
+#### Version 4.3.2 (2016-07-21)
+
+- Bugfix: Fix `setup.py install` ([#199](https://github.com/joeyespo/grip/issues/199))
+
+
+###### Version 4.3.1 (2016-07-21)
+
+- Bugfix: Allow port 0 ([#197](https://github.com/joeyespo/grip/pull/197))
+- Bugfix: Fix setup.py build and include octicon files in the build asset ([#198](https://github.com/joeyespo/grip/issues/198))
+
+
+#### Version 4.3.0 (2016-07-19)
+
+- Bugfix: Fix `--export` deadlock ([#184](https://github.com/joeyespo/grip/issues/184))
+- Bugfix: Make `--quiet` truly quiet ([#188](https://github.com/joeyespo/grip/pull/188) - thanks, [@kba][]!)
+- Bugfix: Allow `--clear` to work without a README file present ([#189](https://github.com/joeyespo/grip/issues/189))
+- Bugfix: Fix tests by patching sys.exc_clear to have Flask 0.11 work on pypy3 ([#190](https://github.com/joeyespo/grip/issues/190))
+- Bugfix: Fix minor version check during patch_svg ([#191](https://github.com/joeyespo/grip/issues/191))
+- Bugfix: Add Octicon font until the Readme API inlines SVGs ([#192](https://github.com/joeyespo/grip/issues/192))
+- Bugfix: Show '- Grip' in `<title>` only, not in page header ([#193](https://github.com/joeyespo/grip/issues/193))
+- Readme: Remove duplicated words ([#177](https://github.com/joeyespo/grip/pull/177) - thanks, [@jwilk][]!)
+- Readme: Remove download count badge since it's broken ([#194](https://github.com/joeyespo/grip/pull/194))
+
+
 #### Version 4.2.0 (2016-04-12)
 
 - Enhancement: Expose `render_inline` through `--no-inline` CLI option ([#165](https://github.com/joeyespo/grip/pull/165) - thanks, [@mrexmelle][]!)
@@ -100,7 +181,7 @@ Grip Changelog
 - Bugfix: Fix asset retrieval on both Python 2 and 3
 - Bugfix: Fix `InsecureRequestWarning` problems ([#111](https://github.com/joeyespo/grip/issues/111), [#128](https://github.com/joeyespo/grip/issues/128))
 - Bugfix: Fix missing Octicons by properly downloading assets as binary files ([#127](https://github.com/joeyespo/grip/issues/127))
-- Bugfix: Add trailing slashes to directories and remove them for files so so relative links are correct ([#131](https://github.com/joeyespo/grip/issues/131))
+- Bugfix: Add trailing slashes to directories and remove them for files so relative links are correct ([#131](https://github.com/joeyespo/grip/issues/131))
 - CLI: Add "Omit this to render as a normal GitHub README file." to help avoid confusion of `--gfm`
 - Readme: Add note about `^D` and `^Z` on Windows ([#105](https://github.com/joeyespo/grip/issues/105))
 - Cleanup: PEP8
@@ -128,7 +209,7 @@ Grip Changelog
 - Enhancement: Allow reading from stdin ([#72](https://github.com/joeyespo/grip/issues/72))
 - Enhancement: Allow `:<port>` pattern in CLI
 - Enhancement: Add a favicon ![favicon](artwork/favicon.ico) ([#60](https://github.com/joeyespo/grip/issues/60))
-- Enhancement: Add "GitHub rate limit" page to replace the a generic 403 error ([#48](https://github.com/joeyespo/grip/issues/48))
+- Enhancement: Add "GitHub rate limit" page to replace the generic 403 error ([#48](https://github.com/joeyespo/grip/issues/48))
 - Enhancement: Add option to clear the cache ([#68](https://github.com/joeyespo/grip/issues/68))
 - Enhancement: Allow storing credentials in config file ([#61](https://github.com/joeyespo/grip/issues/61))
 - Enhancement: Read user settings from `~/.grip`
@@ -153,7 +234,7 @@ Grip Changelog
 - Infrastructure and code cleanup
 
 
-#### Version 2.0.1 (2014-06-14)
+###### Version 2.0.1 (2014-06-14)
 
 - Enhancement: Add ability to export to a specific file using the CLI ([#33](https://github.com/joeyespo/grip/issues/33))
 - Enhancement: Python 3 compatibility ([#54](https://github.com/joeyespo/grip/pull/54) - thanks, [@fly][]!)
@@ -176,7 +257,7 @@ Grip Changelog
 - Enhancement: Relay GitHub API HTTP errors to browser for debuggability
 - Enhancement: Extract render_app and add create_app in API
 - Bugfix: Fix manual installs using setup.py (thanks, [@briancappello][]!)
-- Bugfix: Fix rendering rendering local images (thanks, [@jgallagher][]!)
+- Bugfix: Fix rendering local images (thanks, [@jgallagher][]!)
 - Bugfix: Handle File Not Found errors as 404 when given a directory
 - Rename and re-arrange the configuration files
 - Update README.md with new features
@@ -192,7 +273,7 @@ Grip Changelog
 - Update GitHub CSS regular expression
 
 
-#### Version 1.1.1 (2013-01-05)
+###### Version 1.1.1 (2013-01-05)
 
 - Upgrade path-and-address
 - Use exact versions in requirements
@@ -257,3 +338,11 @@ Grip Changelog
 [@ErikMHummel]: https://github.com/ErikMHummel
 [@mrexmelle]: https://github.com/mrexmelle
 [@motevets]: https://github.com/motevets
+[@kba]: https://github.com/kba
+[@jwilk]: https://github.com/jwilk
+[@xxd3vin]: https://github.com/xxd3vin
+[@davisjam]: https://github.com/davisjam
+[@JasonThomasData]: https://github.com/JasonThomasData
+[@4ndrej]: https://github.com/4ndrej
+[@erikrtn]: https://github.com/erikrtn
+[@kagof]: https://github.com/kagof
