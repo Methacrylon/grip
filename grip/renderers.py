@@ -8,6 +8,7 @@ import requests
 try:
     import markdown
     from .vendor.mdx_urlize import UrlizeExtension
+    from mdx_gfm import GithubFlavoredMarkdownExtension
 except ImportError:
     markdown = None
     UrlizeExtension = None
@@ -96,10 +97,13 @@ class OfflineRenderer(ReadmeRenderer):
         """
         Renders the specified markdown content and embedded styles.
         """
+        markdown, UrlizeExtension, GithubFlavoredMarkdownExtension = None, None, None
         if markdown is None:
             import markdown
         if UrlizeExtension is None:
-            from .mdx_urlize import UrlizeExtension
+            from .vendor.mdx_urlize import UrlizeExtension
+        if GithubFlavoredMarkdownExtension is None:
+            from mdx_gfm import GithubFlavoredMarkdownExtension
         return markdown.markdown(text, extensions=[
             'fenced_code',
             'codehilite(css_class=highlight)',
@@ -107,4 +111,5 @@ class OfflineRenderer(ReadmeRenderer):
             'tables',
             'sane_lists',
             UrlizeExtension(),
+            GithubFlavoredMarkdownExtension()
         ])
