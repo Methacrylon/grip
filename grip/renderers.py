@@ -99,15 +99,16 @@ class OfflineRenderer(ReadmeRenderer):
         """
         markdown, UrlizeExtension, GithubFlavoredMarkdownExtension = None, None, None
         if markdown is None:
-            import markdown
+            from markdown import markdown
+            from .vendor.toc import TocExtension
         if UrlizeExtension is None:
             from .vendor.mdx_urlize import UrlizeExtension
         if GithubFlavoredMarkdownExtension is None:
-            from mdx_gfm import GithubFlavoredMarkdownExtension
-        return markdown.markdown(text, extensions=[
+            from .vendor.mdx_partial_gfm import PartialGithubFlavoredMarkdownExtension as GithubFlavoredMarkdownExtension
+        return markdown(text, extensions=[
             'fenced_code',
             'codehilite(css_class=highlight)',
-            'toc',
+            TocExtension(anchorlink=True),
             'tables',
             'sane_lists',
             UrlizeExtension(),

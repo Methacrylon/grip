@@ -35,8 +35,8 @@ Negative examples:
 u'<p>del.icio.us</p>'
 """
 
+from markdown.extensions import Extension
 import markdown
-
 
 URLIZE_RE = '(%s)' % '|'.join([
     r'<(?:f|ht)tps?://[^>]*>',
